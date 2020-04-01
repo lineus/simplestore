@@ -1,0 +1,2 @@
+# simplestore 
+provides a store-like object that is only mutable via mutations that are predefined when the store is created. I started this to have some of the vuex store functionality on my backend projects, mostly as an expirement. I might add the pub/sub functionality of a tradional store at a later time. For now, I'm happy knowing that I can trust only my intended mutations will have an effect on my store.
