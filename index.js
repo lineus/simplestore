@@ -117,6 +117,7 @@ function setProp(value, desc) {
  * @param {string} desc - Added description string for better error.
  * @returns {object} - The validated object.
  * @throws DontTouchMyReservedwords, It's an error to set data.data, etc.
+ * @throws DisallowedTypeError, mutations/actions can only be functions.
  * @example
  * validate(mySuperCoolObject, 'data');
  */
