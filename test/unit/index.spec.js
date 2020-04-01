@@ -17,6 +17,33 @@ describe('STATE', () => {
   });
 
   describe('basics', () => {
+    it('allows a generic mutation', () => {
+      const store = new Store({
+        mutations: {
+          generic(state, input) {
+            state[input.name] = input.value;
+          }
+        }
+      });
+      store.commit('generic', { name: 'a', value: 'yz' });
+      store.commit('generic', { name: 'x', value: 'bc' });
+      assert.strictEqual(store.a, 'yz');
+      assert.strictEqual(store.x, 'bc');
+    });
+
+    it('generic mutation can\'t overwrite reserved words', () => {
+      const store = new Store({
+        mutations: {
+          generic(state, input) {
+            state[input.name] = input.value;
+          }
+        }
+      });
+      assert.throws(() => {
+        store.commit('generic', { name: 'action', value: 'xyz' });
+      }, /DontTouchMyReservedwords: action/);
+    });
+
     it('throws without a data or mutations property', () => {
       assert.throws(() => {
         new Store({});
@@ -35,6 +62,27 @@ describe('STATE', () => {
       assert.throws(() => {
         store.action('blargh');
       }, /NoSuchActionError: blargh/);
+    });
+
+    it('throws if a mutation or action isn\'t a function', () => {
+      assert.throws(() => {
+        new Store({
+          mutations: {
+            one: 'string'
+          }
+        });
+      }, /DisallowedTypeError: mutations can't accept string/);
+
+      assert.throws(() => {
+        new Store({
+          mutations: {
+            one: (state, val) => state.blargh = val
+          },
+          actions: {
+            one: 'string'
+          }
+        });
+      }, /DisallowedTypeError: actions can't accept string/);
     });
 
     it('throws an error if a prop doesn\'t resolve to an object', () => {

@@ -97,7 +97,11 @@ function setProp(value, desc) {
     ret = value;
   }
 
-  return Object.assign({}, validate(ret, desc));
+  const types = /(actions|mutations)/.test(desc) ?
+    ['function'] :
+    ['*'];
+
+  return Object.assign({}, validate(ret, types, desc));
 }
 
 /**
@@ -105,15 +109,18 @@ function setProp(value, desc) {
  * At the moment, that consists of:
  * 1) making sure it's actually an object.
  * 2) ensuring the no one tries to set a conflicting reserved word.
+ * 3) all mutations values are functions
+ * 4) all actions values are functions.
  *
  * @param {object} obj - The object that will become the exhaulted data.
+ * @param {[string]} types - Allowed types for values, ['*'] for all.
  * @param {string} desc - Added description string for better error.
  * @returns {object} - The validated object.
  * @throws DontTouchMyReservedwords, It's an error to set data.data, etc.
  * @example
- * validate(mySuperCoolObject);
+ * validate(mySuperCoolObject, 'data');
  */
-function validate(obj, desc) {
+function validate(obj, types, desc) {
   if (!(typeof obj === 'object')) {
     throw new Error(`ValidationError: ${desc} doesn't resolve to an object`);
   }
@@ -123,7 +130,17 @@ function validate(obj, desc) {
     }
   }
 
-  return obj;
+  if(Array.isArray(types) && types[0] === '*') {
+    return obj;
+  } else {
+    for (let key in obj) {
+      let t = typeof obj[key];
+      if (Array.isArray(types) && !types.includes(t)) {
+        throw new Error(`DisallowedTypeError: ${desc} can't accept ${t}`);
+      }
+    }
+    return obj;
+  }
 }
 
 /**
@@ -136,10 +153,14 @@ function validate(obj, desc) {
  * commit('doAThing', 'withThisString');
  */
 function commit(name, value) {
-  // the typeof test here should be precluded by not allowing non functions
-  // within the mutations property
-  if (this.mutations[name] && typeof this.mutations[name] === 'function') {
-    return this.mutations[name](this.data, value);
+  if (this.mutations[name]) {
+    let ret = this.mutations[name](this.data, value);
+    for (let key in this.data) {
+      if (RESERVEDWORDS.includes(key)) {
+        throw new Error(`DontTouchMyReservedwords: ${key}`);
+      }
+    }
+    return ret;
   }
   throw new Error(`NoSuchMutationError: ${name} is not a registered mutation.`);
 }
@@ -154,9 +175,7 @@ function commit(name, value) {
  * action('doAThing', 'withThisString');
  */
 function action(name, value) {
-  // the typeof test here should be precluded by not allowing non functions
-  // within the actions property
-  if (this.actions[name] && typeof this.actions[name] === 'function') {
+  if (this.actions[name]) {
     return this.actions[name](commit.bind(this), value);
   }
   throw new Error(`NoSuchActionError: ${name} is not a registered action.`);
