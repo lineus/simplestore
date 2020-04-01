@@ -1,0 +1,20 @@
+{
+  "name": "simplestore",
+  "version": "0.0.1",
+  "description": "store that forces mutations through pre-defined methods",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.spec.js",
+    "coverage": "nyc mocha test/**/*.spec.js"
+  },
+  "keywords": ["store", "state"],
+  "author": "Kevin Huff",
+  "license": "WTFPL",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-plugin-jsdoc": "^22.1.0",
+    "jsdoc": "^3.6.3",
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0"
+  }
+}
