@@ -11,14 +11,20 @@ describe('STATE', () => {
     });
     it('throws sans options object', () => {
       assert.throws(() => {
-        new Store();
+        Store();
       }, /SeedRequiredError/);
+    });
+    it('returns disparate instances', () => {
+      const x = Store({ data: { x: 'y' } });
+      const y = Store({ data: { y: 'x' } });
+      assert.strictEqual(x.y, undefined);
+      assert.strictEqual(y.x, undefined);
     });
   });
 
   describe('basics', () => {
     it('allows a generic mutation', () => {
-      const store = new Store({
+      const store = Store({
         mutations: {
           generic(state, input) {
             state[input.name] = input.value;
@@ -32,7 +38,7 @@ describe('STATE', () => {
     });
 
     it('generic mutation can\'t overwrite reserved words', () => {
-      const store = new Store({
+      const store = Store({
         mutations: {
           generic(state, input) {
             state[input.name] = input.value;
@@ -46,19 +52,19 @@ describe('STATE', () => {
 
     it('throws without a data or mutations property', () => {
       assert.throws(() => {
-        new Store({});
+        Store({});
       }, /NoPointError/);
     });
 
     it('throws an error with nonexistent mutation', () => {
-      const store = new Store({ data: { a: 'bc' } });
+      const store = Store({ data: { a: 'bc' } });
       assert.throws(() => {
         store.commit('blargh');
       }, /NoSuchMutationError: blargh/);
     });
 
     it('throws an error with nonexistent action', () => {
-      const store = new Store({ data: { a: 'bc' } });
+      const store = Store({ data: { a: 'bc' } });
       assert.throws(() => {
         store.action('blargh');
       }, /NoSuchActionError: blargh/);
@@ -66,7 +72,7 @@ describe('STATE', () => {
 
     it('throws if a mutation or action isn\'t a function', () => {
       assert.throws(() => {
-        new Store({
+        Store({
           mutations: {
             one: 'string'
           }
@@ -74,7 +80,7 @@ describe('STATE', () => {
       }, /DisallowedTypeError: mutations can't accept string/);
 
       assert.throws(() => {
-        new Store({
+        Store({
           mutations: {
             one: (state, val) => state.blargh = val
           },
@@ -87,14 +93,14 @@ describe('STATE', () => {
 
     it('throws an error if a prop doesn\'t resolve to an object', () => {
       assert.throws(() => {
-        new Store({
+        Store({
           data: () => 'data'
         });
       }, /ValidationError: data/);
     });
 
     it('mutation not allowed directly', () => {
-      const store = new Store({
+      const store = Store({
         data: {
           a: 'bc'
         },
@@ -107,14 +113,14 @@ describe('STATE', () => {
     });
 
     it('does not allow direct access to data object', () => {
-      const store = new Store({ data: { a: 'bc' } });
+      const store = Store({ data: { a: 'bc' } });
       assert.throws(() => {
         console.log(store.data.a);
       }, /NoDirectAccessForYou/);
     });
 
     it('does not allow mutation of data object directly', () => {
-      const store = new Store({
+      const store = Store({
         mutations: {
           setX: (state, val) => {
             state.x = val;
@@ -131,7 +137,7 @@ describe('STATE', () => {
 
     it('does not allow keywords in data object', () => {
       assert.throws(() => {
-        new Store({
+        Store({
           data: {
             data: {}
           }
@@ -139,7 +145,7 @@ describe('STATE', () => {
       }, /DontTouchMyReservedwords: data/);
 
       assert.throws(() => {
-        new Store({
+        Store({
           data: {
             action: {}
           }
@@ -147,7 +153,7 @@ describe('STATE', () => {
       }, /DontTouchMyReservedwords: action/);
 
       assert.throws(() => {
-        new Store({
+        Store({
           data: {
             commit: {}
           }
@@ -156,7 +162,7 @@ describe('STATE', () => {
     });
 
     it('mutation allowed through commit', () => {
-      const store = new Store({
+      const store = Store({
         mutations: {
           setProp: (store, val) => {
             store.prop = val;
@@ -168,7 +174,7 @@ describe('STATE', () => {
     });
 
     it('async action can commit mutation', async () => {
-      const store = new Store({
+      const store = Store({
         data: {
           x: null
         },
@@ -189,7 +195,7 @@ describe('STATE', () => {
     });
 
     it('allows a fn for data', () => {
-      const store = new Store({
+      const store = Store({
         data: () => {
           return {
             x: 'yz'
@@ -200,7 +206,7 @@ describe('STATE', () => {
     });
 
     it('allows a fn for mutations', () => {
-      const store = new Store({
+      const store = Store({
         data: {
           x: null
         },
@@ -217,7 +223,7 @@ describe('STATE', () => {
     });
 
     it('allows a fn for actions', async () => {
-      const store = new Store({
+      const store = Store({
         data: {
           x: null
         },
@@ -246,14 +252,14 @@ describe('STATE', () => {
         x: 'yz',
         a: 'bc'
       };
-      const store = new Store({ data });
+      const store = Store({ data });
       const {x, a} = store;
       assert.strictEqual(x, 'yz');
       assert.strictEqual(a, 'bc');
     });
 
     it('allows an array in data object', () => {
-      const store = new Store({
+      const store = Store({
         data: {
           a: ['b', 'c']
         },

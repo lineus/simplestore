@@ -44,13 +44,13 @@ const handler = {
  * @returns {object} Store object.
  * @example
  * const assert = require('assert');
- * const st8 = new Store({ data: { x: 'yz' } });
+ * const st8 = Store({ data: { x: 'yz' } });
  * st8.x = 'abc';
  * assert.strictEqual(st8.x, 'yz');
  */
 function Store(seed) {
   if(!seed || typeof seed !== 'object') {
-    throw new Error('SeedRequiredError: Must supply object to `new Store()`');
+    throw new Error('SeedRequiredError: Must supply object to `Store()`');
   }
 
   const data = setProp(seed.data, 'data');
@@ -78,7 +78,7 @@ function Store(seed) {
  * @param {string} desc - Denotes which prop is being set ( for errors ).
  * @returns {object} Initial Object.
  * @example
- * const store = new Store({
+ * const store = Store({
  *   data: Object.assign({}, setProp(seed.data)),
  * });
  */
